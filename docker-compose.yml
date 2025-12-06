@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: bitaksi-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: bitaksi
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - internal
+
+  driver-service:
+    build: ./driver-service
+    container_name: bitaksi-driver-service
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/bitaksi
+    networks:
+      - internal
+
+  gateway:
+    build: ./gateway
+    container_name: bitaksi-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - driver-service
+    environment:
+      DRIVER_SERVICE_URL: http://driver-service:8000
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mongodb_data:
