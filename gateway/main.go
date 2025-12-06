@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/bekiryildirimcode/driver-gateway/handlers"
 	"github.com/bekiryildirimcode/driver-gateway/middlewares"
 	"github.com/bekiryildirimcode/driver-gateway/proxy"
@@ -20,6 +22,9 @@ func main() {
 
 	e.File("/swagger", "docs/swagger.html")
 	e.POST("/login", handlers.Login, limiter)
+	e.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/swagger")
+	})
 
 	r := e.Group("/api/v1/")
 	r.Use(middlewares.JWTMiddleware)
